@@ -105,7 +105,7 @@
 (map (partial apply convert) ['("PAYPALISHIRING" 3) '("PAYPALISHIRING" 4) '("A" 1)])
 
 ;;7
-(defn reverse [x]
+(defn reverse1 [x]
   (let [sign (if (neg? x) -1 1)
         abs (fn [n] (if (neg? n) (- n) n))
         compare-string-digits (fn [s1 s2]
@@ -127,7 +127,7 @@
     (->> (str (abs x))
          (str/reverse)
          (->integer))))
-(map reverse [123 -123 120 0])
+(map reverse1 [123 -123 120 0])
 
 ;;8
 (defn my-atoi [s]
@@ -253,5 +253,28 @@
 
 ;;16
 (defn three-sum-closest [nums target]
-  )
+  (let [add-pair (fn [target [result m] index]
+                   (let [num (nums index)
+                         indexes (get m num)]
+                     (if (empty? indexes)
+                       [result (assoc m (- target num) (conj (get m (- target num)) num))]
+                       [(concat result (map #(partial vector num (nums %)) indexes))])))
+        two-sum (fn [nums target]
+                  (reduce #(add-pair target %1 %2) [[] {}] (range (count nums))))
+        nums (vec (sort nums))
+        min-target (apply + (take 3 nums))
+        max-target (apply + (take 3 (reverse nums)))
+        three-sum' (fn [result target]
+                     (let [count-three-sum
+                           (fn [r num]
+                             (let [pairs (two-sum nums target)]
+                               (if (empty? pairs)
+                                 r
+                                 (reduced (count pairs))))
+                             )]
+                       (reduce count-three-sum 0 nums)))
+        three-sum (fn [min-target max-target]
+                    (reduce three-sum' 0 (range target (inc max-target)))
+                    )]
+    (three-sum min-target max-target)))
 (map (partial apply three-sum-closest) ['([-1 2 1 -4] 1) '([0 0 0] 1)])
