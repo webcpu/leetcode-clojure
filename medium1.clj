@@ -296,3 +296,28 @@
            (distinct))
       )))
 (map letter-combinations ["23" "2"])
+
+;;18
+(defn four-sum [nums target]
+  (let [len (count nums)
+        pairs (for [a (range 0 (- len 3)) b (range (inc a) (- len 2))]
+                [a b])
+        two-sum (fn [target nums]
+                  (let [search (fn [[result num-map] index]
+                                 (let [num (nums index)
+                                       indexes (get num-map num)]
+                                   (if (empty? indexes)
+                                     [result (assoc num-map (- target num) (conj (get num-map (- target num)) index))]
+                                     [(vec (concat result (map (fn [index] [(nums index) num]) indexes))) num-map])))]
+                    (first (reduce search [[] {}] (range (count nums))))))
+        search-four-sum (fn [result [a b]]
+                       (let [x0 (nums a)
+                             x1 (nums b)
+                             target' (- target x0 x1)
+                             nums' (subvec nums (inc b))
+                             pairs (two-sum target' nums')]
+                         (if (empty? pairs)
+                           result
+                           (concat result (map #(concat [x0 x1] %) pairs)))))]
+    (distinct (reduce search-four-sum [] pairs))))
+(map (partial apply four-sum) ['([1 0 -1 0 -2 2] 0) '([2 2 2 2 2] 8)])
