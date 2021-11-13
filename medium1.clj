@@ -278,3 +278,21 @@
                     )]
     (three-sum min-target max-target)))
 (map (partial apply three-sum-closest) ['([-1 2 1 -4] 1) '([0 0 0] 1)])
+
+;;17
+(defn letter-combinations [digits]
+  (let [digit-map {\2 "abc" \3 "def" \4 "ghi" \5 "jkl" \6 "mno" \7 "pqrs" \8 "tuv" \9 "wxyz"}
+        digits-list (mapv #(vec (get digit-map %)) digits)]
+    (letfn [(permunations [digits-list]
+              (let [indexes (range (count digits-list))
+                    permunations' (fn [index] (for [digits (permunations (subvec digits-list (inc index)))
+                                                    digit (digits-list index)]
+                                                (cons digit digits)))]
+                (if (= (count digits-list) 1)
+                  (map (fn [digit] [digit]) (first digits-list))
+                  (reduce concat [] (map permunations' indexes)))))]
+      (->> (permunations digits-list)
+           (map #(str/join "" %))
+           (distinct))
+      )))
+(map letter-combinations ["23" "2"])
