@@ -250,3 +250,8 @@
          (distinct)
          (vec))))
 (map three-sum [[-1,0,1,2,-1,-4] [] [0]])
+
+;;16
+(defn three-sum-closest [nums target]
+  )
+(map (partial apply three-sum-closest) ['([-1 2 1 -4] 1) '([0 0 0] 1)])
