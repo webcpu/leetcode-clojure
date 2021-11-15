@@ -526,3 +526,18 @@
             (reduce (fn [result _] (translate result)) "1" (range (dec n))))]
     (say n)))
 (map count-and-say [1 4 5])
+
+;;39
+(defn combination-sum [candidates target]
+  (let [candidates (vec (sort candidates))
+        len (count candidates)]
+    (letfn [(backtrack [results result target start]
+              (let [backtrack' (fn [results index]
+                                 (let [candidate (candidates index)]
+                                   (backtrack results (conj result candidate) (- target candidate) index)))]
+                (cond
+                  (neg? target) results
+                  (zero? target) (conj results result)
+                  :else (reduce backtrack' results (range start len)))))]
+      (backtrack [] [] target 0))))
+(map (partial apply combination-sum) ['([2 3 6 7] 7) '([2 3 5] 8) '([2] 1) '([1] 1) '([1] 2)])
