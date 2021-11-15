@@ -438,7 +438,7 @@
 (map (partial apply search-range) ['([5 7 7 8 8 10] 8) '([5 7 7 8 8 10] 6) '([] 0)])
 
 ;;36
-(defn is-valid-sudoku [board]
+(defn is-valid-sudoku1 [board]
   (let [transpose (fn [m] (apply mapv vector m))
         board' (transpose board)
         indexes (for [r (range 9) c (range 9)] [r c])
@@ -463,6 +463,23 @@
                      :else (reduced false)))]
     (reduce validate (validate-sub-boxes) indexes)
     ))
+(defn is-valid-sudoku [board]
+  (let [indexes (for [r (range 9) c (range 9)]
+                  [r c])
+        valid? (fn [[result digit-set] [r c]]
+                 (let [value ((board r) c)
+                       row-value (str "row=" r " num=" value)
+                       col-value (str "col=" c " num=" value)
+                       subbox-value (str "subbox=" (quot r 3) "," (quot c 3) " num=" value)
+                       contains-invalid-value (reduce #(if (contains? digit-set %2)
+                                  (reduced false)
+                                  %1) true [row-value col-value subbox-value])
+                       ]
+                   (cond
+                     (= value ".") [result digit-set]
+                     contains-invalid-value [true (conj digit-set row-value col-value subbox-value)]
+                     :else (reduced [false digit-set]))))]
+    (first (reduce valid? [true #{}] indexes))))
 (map is-valid-sudoku [[["5" "3" "." "." "7" "." "." "." "."]
                        ["6" "." "." "1" "9" "5" "." "." "."]
                        ["." "9" "8" "." "." "." "." "6" "."]
