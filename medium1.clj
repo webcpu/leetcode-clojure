@@ -438,3 +438,54 @@
 (map (partial apply search-range) ['([5 7 7 8 8 10] 8) '([5 7 7 8 8 10] 6) '([] 0)])
 
 ;;36
+(defn is-valid-sudoku [board]
+  (let [transpose (fn [m] (apply mapv vector m))
+        board' (transpose board)
+        indexes (for [r (range 9) c (range 9)] [r c])
+        distinct-digits? (fn [cells]
+                          (->> (filter #(not= % ".") cells)
+                               (apply distinct?)))
+        valid-sub-box? (fn [[r c]]
+                         (let [indexes (for [r' (range r (+ r 3)) c' (range c (+ c 3))]
+                                         [r' c'])
+                               concat-cell (fn [result [r c]]
+                                             (conj result ((board r) c)))]
+                           (distinct-digits? (reduce concat-cell [] indexes))))
+        validate-sub-boxes (fn []
+                             (let [indexes (for [r (range 0 9 3) c (range 0 9 3)] [r c])]
+                               (every? valid-sub-box? indexes)))
+        validate' (fn [r c]
+                    (every? distinct-digits? [(board r) (board' c)]))
+        validate (fn [result [r c]]
+                   (cond
+                     (= "." ((board r) c)) result
+                     (validate' r c) result
+                     :else (reduced false)))]
+    (reduce validate (validate-sub-boxes) indexes)
+    ))
+(map is-valid-sudoku [[["5" "3" "." "." "7" "." "." "." "."]
+                       ["6" "." "." "1" "9" "5" "." "." "."]
+                       ["." "9" "8" "." "." "." "." "6" "."]
+                       ["8" "." "." "." "6" "." "." "." "3"]
+                       ["4" "." "." "8" "." "3" "." "." "1"]
+                       ["7" "." "." "." "2" "." "." "." "6"]
+                       ["." "6" "." "." "." "." "2" "8" "."]
+                       ["." "." "." "4" "1" "9" "." "." "5"]
+                       ["." "." "." "." "8" "." "." "7" "9"]]
+                      [["8" "3" "." "." "7" "." "." "." "."]
+                       ["6" "." "." "1" "9" "5" "." "." "."]
+                       ["." "9" "8" "." "." "." "." "6" "."]
+                       ["8" "." "." "." "6" "." "." "." "3"]
+                       ["4" "." "." "8" "." "3" "." "." "1"]
+                       ["7" "." "." "." "2" "." "." "." "6"]
+                       ["." "6" "." "." "." "." "2" "8" "."]
+                       ["." "." "." "4" "1" "9" "." "." "5"]
+                       ["." "." "." "." "8" "." "." "7" "9"]]
+                      ])
+
+;;(reduce #(str %1 282 %2) "" [56 57 931 56 57 941])
+;; (defn formula [n]
+;;  (Math/round (- 16662.00002363106 (* 35005.166716504085 n)
+;; (* 25457.250036667832 n n -1) (* 8194.291678808782 n n n) (*
+;; 1201.750001849751 n n n n -1) (* 65.54166677202554 n n n n n))))
+;; (reduce #(str %1 (+ 282 (* (quot (dec %2) 3) 101)) (formula %2)) "" (range 1 7))
