@@ -506,3 +506,23 @@
 ;; (* 25457.250036667832 n n -1) (* 8194.291678808782 n n n) (*
 ;; 1201.750001849751 n n n n -1) (* 65.54166677202554 n n n n n))))
 ;; (reduce #(str %1 (+ 282 (* (quot (dec %2) 3) 101)) (formula %2)) "" (range 1 7))
+
+;;38
+(defn count-and-say [n]
+  (letfn [(split-digits [s]
+            (let [cs (vec s)
+                  len (count s)
+                  split (fn [[result start] index]
+                          (cond
+                            (= index len) [(conj result (subs s start len)) len]
+                            (= (cs (dec index)) (cs index)) [result start]
+                            :else [(conj result (subs s start index)) index]))]
+              (first (reduce split [[] 0] (range 1 (inc len))))))
+          (translate [s]
+            (let [groups (split-digits s)
+                  ->count-char #(str (count %) (subs % 0 1))]
+              (str/join "" (map ->count-char groups))))
+          (say [n]
+            (reduce (fn [result _] (translate result)) "1" (range (dec n))))]
+    (say n)))
+(map count-and-say [1 4 5])
