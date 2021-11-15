@@ -321,3 +321,120 @@
                            (concat result (map #(concat [x0 x1] %) pairs)))))]
     (distinct (reduce search-four-sum [] pairs))))
 (map (partial apply four-sum) ['([1 0 -1 0 -2 2] 0) '([2 2 2 2 2] 8)])
+
+;;22
+(defn generate-parenthesis1 [n]
+  (letfn [(add-parenthesis [s]
+            [(str "()" s) (str "(" s ")") (str s "()")])
+          (generate [n]
+            (if (= n 1)
+              ["()"]
+              (flatten (map add-parenthesis (generate (dec n))))))]
+    (distinct (generate n))))
+(defn generate-parenthesis [n]
+  (letfn [(generate [result s open close maximum]
+            (if (= (count s) (* maximum 2))
+              (conj result s)
+              (let [r1 (if (< open maximum)
+                         (generate result (str "(" s) (inc open) close maximum) result)
+                    r2 (if (< close open)
+                         (generate r1 (str s ")") open (inc close) maximum) r1)]
+                r2)))]
+    (generate [] "" 0 0 n)))
+(map generate-parenthesis [3 1])
+
+;;29
+(defn divide [dividend divisor]
+  (let [sign (if (not= (pos? dividend) (pos? divisor)) -1 1)
+        abs (fn [n] (if (neg? n) (- n) n))
+        a (abs dividend)
+        b (abs divisor)]
+    (letfn [(divide' [a b]
+              (if (>= a b)
+                (let [x (loop [x 0]
+                          (if (<= a (bit-shift-left b (bit-shift-left 1 x)))
+                            x
+                            (recur (inc x))))]
+                  (+ (bit-shift-left 1 x) (divide' (- a (bit-shift-left b x)) b)))
+                0))]
+      (if (and (= dividend Integer/MIN_VALUE) (= divisor -1))
+        Integer/MAX_VALUE
+        (* (divide' a b) sign)))))
+(map (partial apply divide) ['(10 3) '(7 -3) '(0 1) '(1 1) '(25 4)])
+
+;;31
+(defn next-permunation [nums]
+  (let [xs (into-array nums)
+        len (count nums)
+        indexes (range (- len 2) -1 -1)
+        largest-index (reduce (fn [result index]
+                                (if (< (aget xs index) (aget xs (inc index)))
+                                  (reduced index)
+                                  result)) nil indexes)
+        swap-array (fn [i j]
+                     (let [tmp (aget xs i)]
+                       (aset xs i (aget xs j))
+                       (aset xs j tmp)))
+
+        reverse-array (fn [start end]
+                        (loop [start start end end]
+                          (when (< start end)
+                            (swap-array start end))))
+        next-permunation' (fn [largest-index]
+                            (let [find-pivot-index (fn [result index]
+                                                     (if (> (aget xs index) (aget xs largest-index))
+                                                       (reduced index)
+                                                       result))
+                                  pivot-index (reduce find-pivot-index nil (range (dec len) largest-index -1))]
+                              (swap-array largest-index pivot-index)
+                              (reverse-array (inc largest-index) pivot-index)
+                              (vec xs)))]
+    (if (nil? largest-index)
+      (vec (reverse xs))
+      (next-permunation' largest-index))))
+(map next-permunation [[1 2 3] [3 2 1] [1 1 5] [1] [0 1 2 5 3 3 0]])
+
+;;33
+(defn search1 [nums target]
+  (letfn [(binary-search-min-index [left right]
+            (let [middle (quot (+ left right) 2)]
+              (cond
+                (>= left right) left
+                (> (nums middle) (nums right)) (binary-search-min-index (inc middle) right)
+                :else (binary-search-min-index left (dec middle)))))
+          (binary-search [nums left right offset]
+            (let [len (count nums)
+                  middle (quot (+ left right) 2)
+                  real-mid (rem (+ middle offset) len)]
+              (cond
+                (> left right) -1
+                (= (nums real-mid) target) real-mid
+                (> (nums real-mid) target) (binary-search nums left (dec middle) offset)
+                :else (binary-search nums (inc middle) right offset))))]
+    (let [min-index (binary-search-min-index 0 (dec (count nums)))]
+      (binary-search nums 0 (dec (count nums)) min-index))))
+(map (partial apply search1) ['([4 5 6 7 0 1 2] 0) '([4 5 6 7 0 1 2] 3) '([1] 0)])
+
+;;34
+(defn search-range [nums target]
+  (letfn [(binary-search [left right]
+            (let [mid (quot (+ left right) 2)]
+              (cond
+                (> left right) nil
+                (= (nums mid) target) mid
+                (> (nums mid) target) (binary-search left (dec mid))
+                :else (binary-search (inc mid) right))))
+          (get-range [index]
+            (let [get-index (fn [indexes]
+                              (reduce #(if (not= (nums %2) target) (reduced %1) %2) index indexes))
+                  left  (get-index (range (dec index) -1 -1))
+                  right (get-index (range (inc index) (count nums)))]
+              [left right]))]
+    (let [len (count nums)
+          index (binary-search 0 (dec len))]
+      (if (nil? index)
+        [-1 -1]
+        (get-range index)))))
+(map (partial apply search-range) ['([5 7 7 8 8 10] 8) '([5 7 7 8 8 10] 6) '([] 0)])
+
+;;36
