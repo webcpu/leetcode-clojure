@@ -629,3 +629,28 @@
                 (map str)
                 (str/join "")))))
 (map (partial apply multiply) ['("2" "3") '("123" "456") '("0" "0")])
+
+;;45
+(defn jump [nums]
+  (letfn [(play [min-jumps jumps start]
+            (let [len (count nums)
+                  indexes (range (inc start) (min len (+ start (nums start) 1)))
+                  play' (fn [result index]
+                    (play result (inc jumps) index))]
+              (cond
+                (>= (+ start (nums start)) (dec len)) (min min-jumps (inc jumps))
+                (zero? (nums start)) min-jumps
+                :else (reduce play' min-jumps indexes))))]
+    (play (dec (count nums)) 0 0)))
+(defn jump [nums]
+  (let [len (count nums)
+        indexes (range len)
+        jump' (fn [[jumps farthest end] index]
+                (let [farthest' (max farthest (+ index (nums index)))
+                      jumps' (if (= index end) (inc jumps) jumps)
+                      end' (if (= index end) farthest' end)]
+                  (if (>= end (dec len))
+                    [jumps farthest end]
+                    [jumps' farthest' end'])))]
+    (first (reduce jump' [0 0 0] indexes))))
+(map jump [[2 3 1 1 4] [2 3 0 1 4] [1]])
