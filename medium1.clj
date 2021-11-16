@@ -542,3 +542,20 @@
       (backtrack [] [] target 0))))
 (map (partial apply combination-sum) ['([2 3 6 7] 7) '([2 3 5] 8) '([2] 1) '([1] 1) '([1] 2)])
 
+;;40
+(defn combination-sum2 [candidates target]
+  (letfn [(backtrack [results result target start]
+            (let [len (count candidates)
+                  backtrack' (fn [results index]
+                               (let [candidate (candidates index)]
+                                 (backtrack results (conj result candidate) (- target candidate) (inc index))))]
+              (cond
+                (neg? target) results
+                (zero? target) (conj results result)
+                :else (reduce backtrack' results (range start len)))))]
+    (->> (backtrack [] [] target 0)
+         (mapv sort)
+         (distinct)
+         (sort-by str))))
+
+(map (partial apply combination-sum2) ['([10 1 2 7 6 1 5] 8) '([2 5 2 1 2] 5)])
