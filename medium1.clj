@@ -559,3 +559,73 @@
          (sort-by str))))
 
 (map (partial apply combination-sum2) ['([10 1 2 7 6 1 5] 8) '([2 5 2 1 2] 5)])
+
+;;43
+(defn multiply [num1 num2]
+  (let [->digits (fn [s]
+                   (vec (reverse (map #(- (int %) (int \0)) (vec s)))))
+        add (fn [s1 s2]
+              (let [digits1 (->digits s1)
+                    digits2 (->digits s2)
+                    len1 (count digits1)
+                    len2 (count digits2)
+                    add-digits (fn [[result carry] index]
+                                 (let [digit1 (if (< index len1)
+                                                (digits1 index)
+                                                0)
+                                       digit2 (if (< index len2)
+                                                (digits2 index)
+                                                0)
+                                       sum (+ (+ digit1 digit2) carry)]
+                                   [(cons (rem sum 10) result) (quot sum 10)]))
+                    [digits carry] (reduce add-digits [(list) 0] (range (max len1 len2)))]
+                (->> (if (not= carry 0)
+                       (cons carry digits)
+                       digits)
+                     (map str)
+                     (str/join ""))))
+        times' (fn [s1 digit]
+                 (let [digits1 (->digits s1)
+                       len1 (count digits1)
+                       digit (Integer/parseInt digit)
+                       [result carry] (reduce (fn [[result carry] digit1]
+                                                (let [r (+ (* digit digit1) carry)]
+                                                  [(cons (rem r 10) result) (quot r 10)])) [(list) 0] digits1)]
+                   (->> (if (pos? carry)
+                          (cons carry result)
+                          result)
+                        (map str)
+                        (str/join ""))))
+        times (fn [s1 s2]
+                (let [digits (map str (vec s2))
+                      multiply-digits (fn [index digit]
+                                        (->> (concat (vec (times' s1 digit)) (take index (cycle [\0])))
+                                             (map str)
+                                             (str/join "")
+                                             ))]
+                  (->> (map multiply-digits (range (count digits)) (reverse digits))
+                       (reduce add "0")
+                       )))]
+    (times num1 num2)))
+(defn multiply [num1 num2]
+  (let [num1 (mapv #(- (int %) (int \0)) (vec num1))
+        num2 (mapv #(- (int %) (int \0)) (vec num2))
+        len1 (count num1)
+        len2 (count num2)
+        result (make-array Long/TYPE (+ len1 len2))
+        indexes (for [i (range (dec len1) -1 -1) j (range (dec len2) -1 -1)]
+                  [i j])]
+    (doseq [[i j] indexes]
+      (let [index (+ i j 1)
+            product (* (num1 i) (num2 j))
+            sum (+ (aget result index) product)]
+        (aset result index (rem sum 10))
+        (aset result (dec index) (+ (aget result (dec index)) (quot sum 10)))))
+    (let [digits (vec result)
+          index (reduce #(if (zero? (digits %2)) %1 (reduced %2)) 0 (range (count digits)))]
+      (->> (if (every? zero? digits)
+             [0]
+             (subvec digits index))
+                (map str)
+                (str/join "")))))
+(map (partial apply multiply) ['("2" "3") '("123" "456") '("0" "0")])
