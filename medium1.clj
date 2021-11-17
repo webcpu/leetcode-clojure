@@ -723,3 +723,16 @@
   (->> (reverse matrix)
        (apply mapv vector)))
 (map rotate1 [[[1 2 3] [4 5 6] [7 8 9]] [[5 1 9 11] [2 4 8 10] [13 3 6 7] [15 14 12 16]]])
+
+;;49
+(defn group-anagrams [strs]
+  (let [add-anagram (fn [[anagrams-map freq-map] s]
+                      (let [freq (or (get freq-map s) (frequencies s))
+                            freq-map' (assoc freq-map s freq)
+                            anagrams (or (get anagrams-map freq) [])
+                            anagrams-map' (assoc anagrams-map freq (conj anagrams s))]
+                        [anagrams-map' freq-map']))]
+    (->> (reduce add-anagram [{} {}] strs)
+         (first)
+         (vals))))
+(map group-anagrams [["eat" "tea" "tan" "ate" "nat" "bat"] [""] ["a"]])
