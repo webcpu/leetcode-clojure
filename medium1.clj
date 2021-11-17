@@ -748,3 +748,28 @@
       (pow1' x n)
       (/ 1 (pow1' x (- n))))))
 (map (partial apply pow1) ['(2.0 10) '(2.1 3) '(2.0 -2)])
+
+(->> (range 0 10)
+     (reduce (fn [[evens odds] x]
+               (if (even? x)
+                 [(conj evens x) odds]
+                 [evens (conj odds x)]))
+             [[] []]))
+
+;;54
+(defn spiral-order [matrix]
+  (letfn [(transpose [mat]
+            (let [m (count mat)
+                  n (count (mat 0))
+                  mt (make-array Long/TYPE n m)]
+              (doseq [r (range m) c (range n)]
+                (aset mt c r ((mat r) c)))
+              (mapv vec mt)))
+          (rotate-matrix [m]
+            (vec (reverse (transpose m))))
+          (spiral [mat]
+            (if (empty? (subvec mat 1))
+              (first mat)
+              (vec (concat (first mat) (spiral (rotate-matrix (subvec mat 1)))))))]
+    (spiral matrix)))
+(map spiral-order [[[1 2 3] [4 5 6] [7 8 9]] [[1 2 3 4] [5 6 7 8] [9 10 11 12]]])
