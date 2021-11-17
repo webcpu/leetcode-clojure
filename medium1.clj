@@ -654,3 +654,72 @@
                     [jumps' farthest' end'])))]
     (first (reduce jump' [0 0 0] indexes))))
 (map jump [[2 3 1 1 4] [2 3 0 1 4] [1]])
+
+;;46
+(defn permute [nums]
+  (letfn [(permutations [nums]
+            (cond
+              (= (count nums) 1) [nums]
+              :else (reduce concat [] (map (fn [index]
+                           (let [nums' (vec (concat (subvec nums 0 index)
+                                               (subvec nums (inc index))))]
+                          (map #(conj % (nums index)) (permutations nums')))) (range (count nums))))))
+          ]
+    (permutations nums)))
+(defn permute [nums]
+  (println "++++++++++")
+  (let [nums (vec (sort nums))
+        len (count nums)]
+    (letfn [(backtrack [result start]
+              (let [backtrack' (fn [index]
+                                 (println result)
+                                 (backtrack (conj result (nums index)) (inc index)))
+                    indexes (range start (count nums))]
+                (cond
+                  (= (count result) (count nums)) [result]
+                  :else (reduce concat (map backtrack' indexes)))))]
+      (backtrack [] 0))))
+(map permute [[1 2 3] [0 1] [1]])
+
+;;47
+;; (defn permute-unique [nums]
+  
+;;   )
+;; (map permute-unique [[1 1 2] [1 2 3]])
+
+;;48
+(defn rotate1 [matrix]
+  (let [n (count matrix)
+        mat (make-array Long/TYPE n n)
+        abs (fn [n] (if (neg? n) (- n) n))
+        decode' (fn [n]
+                  (cond
+                    (neg? n) n
+                    (<= n 1000) n
+                    :else (- n 2048)))
+        encode (fn [x y]
+                 (let [get-original (fn [n]
+                                      (decode' (rem n 2048)))
+                       x' (get-original x)
+                       y' (get-original y)]
+                   (+ (* x' 2048) y')))
+        decode (fn [value]
+                 (mapv decode' [(quot value 2048) (rem value 2048)]))
+        rotate-element (fn [r c]
+                         (let [r' c
+                               c' (- (dec n) r)
+                               num1 (aget mat r c)
+                               num2 (aget mat r' c')]
+                           (aset mat r' c' (encode num1 num2))))]
+    (doseq [r (range n) c (range n)]
+      (aset mat r c ((matrix r) c)))
+    (doseq [r (range n) c (range n)]
+      (rotate-element r c))
+    (doseq [r (range n) c (range n)]
+      (aset mat r c (first (decode (aget mat r c)))))
+    (mapv vec mat)))
+
+(defn rotate1 [matrix]
+  (->> (reverse matrix)
+       (apply mapv vector)))
+(map rotate1 [[[1 2 3] [4 5 6] [7 8 9]] [[5 1 9 11] [2 4 8 10] [13 3 6 7] [15 14 12 16]]])
