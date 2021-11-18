@@ -794,3 +794,30 @@
         max-jump (reduce jump 0 (range (count nums)))]
     (>= max-jump (dec (count nums)))))
 (map can-jump [[2 3 1 1 4] [3 2 1 0 4] [0 1 2 3]])
+
+;;56
+(defn merge1 [intervals]
+  (let [points (make-array Long/TYPE 10002)
+        [min-value max-value] (reduce  (fn [[min-value max-value] [start end]]
+                                         (doseq [index (range start (inc end))]
+                                           (aset points index 1))
+                                         [(min min-value start) (max max-value end)]) [Long/MAX_VALUE 0] intervals)
+        add-interval (fn [[result start] index]
+                       (let [num (aget points index)]
+                         (cond
+                           (and (nil? start) (= num 1)) [result index]
+                           (and (nil? start) (= num 0)) [result start]
+                           (= num 0) [(conj result [start (dec index)]) nil]
+                           :else [result start])))
+        [result start] (reduce add-interval [[] nil] (range min-value (inc max-value)))]
+    (if (nil? start)
+      result
+      (conj result [start max-value]))))
+(defn merge1 [intervals]
+  (let [intervals (sort-by first intervals)
+        add-interval (fn [result [start end]]
+          (if (and (not-empty result) (>= (last (last result)) start))
+            (conj (vec (drop-last result)) [(first (last result)) end])
+            (conj result [start end])))]
+    (reduce add-interval [] intervals)))
+(map merge1 [[[1 3] [2 6] [8 10] [15 18]] [[1 4] [4 5]]])
