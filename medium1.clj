@@ -773,3 +773,24 @@
               (vec (concat (first mat) (spiral (rotate-matrix (subvec mat 1)))))))]
     (spiral matrix)))
 (map spiral-order [[[1 2 3] [4 5 6] [7 8 9]] [[1 2 3 4] [5 6 7 8] [9 10 11 12]]])
+
+;;55
+(defn can-jump [nums]
+  (let [xs (vec (reverse nums))
+        jump (fn [[result start] index]
+               (let [num (xs index)]
+                 (cond
+                   (zero? num) [result index]
+                   (nil? start) [result nil]
+                   (> num (- index start)) [result start]
+                   :else (reduced [false start]))))
+        [result index] (reduce jump [true nil] (range (count nums)))]
+    (and result (not= index (dec (count nums))))))
+(defn can-jump [nums]
+  (let [jump (fn [max-value index]
+               (if (<= index max-value)
+                 (max max-value (+ index (nums index)))
+                 (reduced max-value)))
+        max-jump (reduce jump 0 (range (count nums)))]
+    (>= max-jump (dec (count nums)))))
+(map can-jump [[2 3 1 1 4] [3 2 1 0 4] [0 1 2 3]])
