@@ -835,3 +835,23 @@
                     (max end (last (intervals (- (dec len) (count right)))))])]
     (concat (conj left interval) right)))
 (map (partial apply insert1) ['([[1 3] [6 9]] [2 5]) '([[1 2] [3 5] [6 7] [8 10] [12 16]] [4 8]) '([] [5 7]) '([[1 5]] [2 3])])
+
+;;59
+(defn generate-matrix [n]
+  (letfn [(transpose [matrix]
+            (let [m (count matrix)
+                  n (count (first matrix))                  ]
+              (if (zero? n)
+                matrix
+                (let [mt (make-array Long/TYPE n m)]
+                  (doseq [r (range m) c (range n)]
+                    (aset mt c r ((matrix r) c)))
+                  (mapv vec mt)))))
+          (generate [matrix size]
+            (let [len (count matrix)
+                  matrix' (vec (concat [(vec (range (- size len) size))] (map #(vec (reverse %)) (transpose matrix))))]
+              (if (> size 1)
+                (generate matrix' (- size len))
+                matrix)))]
+    (generate [[(* n n)]] (* n n))))
+(map generate-matrix [3 1])
