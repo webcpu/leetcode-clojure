@@ -847,11 +847,28 @@
                   (doseq [r (range m) c (range n)]
                     (aset mt c r ((matrix r) c)))
                   (mapv vec mt)))))
+          (generate' [matrix size len]
+            (vec (concat [(vec (range (- size len) size))]
+                         (map #(vec (reverse %)) (transpose matrix)))))
           (generate [matrix size]
             (let [len (count matrix)
-                  matrix' (vec (concat [(vec (range (- size len) size))] (map #(vec (reverse %)) (transpose matrix))))]
+                  matrix' (generate matrix size len)]
               (if (> size 1)
                 (generate matrix' (- size len))
                 matrix)))]
     (generate [[(* n n)]] (* n n))))
 (map generate-matrix [3 1])
+
+;;62
+(defn unique-paths [m n]
+  (let [dp (make-array Long/TYPE m n)]
+      (doseq [c (range 1 n)]
+        (aset dp 0 c 1))
+      (doseq [r (range 1 m)]
+        (aset dp r 0 1))
+      (doseq [r (range 1 m) c (range 1 n)]
+        (let [paths1 (aget dp (dec r) c)
+              paths2 (aget dp r (dec c))]
+        (aset dp r c (+ paths1 paths2))))
+      (aget dp (dec m) (dec n))))
+(map (partial apply unique-paths) ['(3 7) '(3 3)])
