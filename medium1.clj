@@ -821,3 +821,17 @@
             (conj result [start end])))]
     (reduce add-interval [] intervals)))
 (map merge1 [[[1 3] [2 6] [8 10] [15 18]] [[1 4] [4 5]]])
+
+;;57
+(defn insert1 [intervals new-interval]
+  (let [len (count intervals)
+        [start end] new-interval
+        left (filterv #(< (last %) start) intervals)
+        right (filterv #(> (first %) end) intervals)
+        intervals' (vec (concat left right))
+        interval (if (= intervals intervals')
+                   [start end]
+                   [(min start (first (intervals (count left))))
+                    (max end (last (intervals (- (dec len) (count right)))))])]
+    (concat (conj left interval) right)))
+(map (partial apply insert1) ['([[1 3] [6 9]] [2 5]) '([[1 2] [3 5] [6 7] [8 10] [12 16]] [4 8]) '([] [5 7]) '([[1 5]] [2 3])])
