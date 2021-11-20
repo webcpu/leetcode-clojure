@@ -901,3 +901,25 @@
     (calculate-dp)
     (aget dp (dec m) (dec n))))
 (map unique-paths-with-obstacles [[[0 0 0] [0 1 0] [0 0 0]] [[0 1] [0 0]]])
+
+;;64
+(defn min-path-sum [grid]
+  (let [m (count grid)
+        n (count (first grid))
+        dp (make-array Long/TYPE m n)
+        get-path-sum (fn [sum [r c]]
+                       (let [sum' (+ sum ((grid r) c))]
+                         (aset dp r c sum')
+                         sum'))
+        init-dp (fn []
+                  (reduce get-path-sum 0 (map (fn [index] [index 0]) (range m)))
+                  (reduce get-path-sum 0 (map (fn [index] [0 index]) (range n)))
+                  (doseq [r (range 1 m) c (range 1 n)]
+                    (let [sum1 (aget dp (dec r) c)
+                          sum2 (aget dp r (dec c))
+                          num ((grid r) c)
+                          path-sum (+ (min sum1 sum2) num)]
+                      (aset dp r c path-sum))))]
+    (init-dp)
+    (aget dp (dec m) (dec n))))
+(map min-path-sum [[[1 3 1] [1 5 1] [4 2 1]] [[1 2 3] [4 5 6]]])
