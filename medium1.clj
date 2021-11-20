@@ -936,3 +936,26 @@
          (str/join "/")
          (#(str "/" %)))))
 (map simplify-path ["/home/" "/../" "/home//foo/" "/a/./b/../../c/"])
+
+;;73
+(defn set-zeroes [matrix]
+  (let [m (count matrix)
+        n (count (first matrix))
+        mat (make-array Long/TYPE m n)
+        rows (filterv (fn [r]
+                        (reduce (fn [result c] (if (zero? ((matrix r) c))
+                                   (reduced true)
+                                   result)) false (range n))) (range m))
+
+        cols (filterv (fn [c]
+                        (reduce (fn [result r] (if (zero? ((matrix r) c))
+                                                 (reduced true)
+                                                 result)) false (range m))) (range n))]
+    (doseq [r (range m) c (range n)]
+      (aset mat r c ((matrix r) c)))
+    (doseq [r rows c (range n)]
+      (aset mat r c 0))
+    (doseq [r (range m) c cols]
+      (aset mat r c 0))
+    (mapv vec mat)))
+(map set-zeroes [[[1 1 1] [1 0 1] [1 1 1]] [[0 1 2 0] [3 4 5 2] [1 3 1 5]]])
