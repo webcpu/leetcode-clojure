@@ -872,3 +872,32 @@
         (aset dp r c (+ paths1 paths2))))
       (aget dp (dec m) (dec n))))
 (map (partial apply unique-paths) ['(3 7) '(3 3)])
+
+;;63
+(defn unique-paths-with-obstacles [obstacle-grid]
+  (let [m (count obstacle-grid)
+        n (count (first obstacle-grid))
+        dp (make-array Long/TYPE m n)
+        init-dp (fn [indexes]
+                  (doseq [[r c] indexes]
+                    (if (zero? ((obstacle-grid r) c))
+                      (aset dp r c 1)
+                      (aset dp r c 0))))
+
+        first-row (for [c (range 1 n)]
+                    [0 c])
+        first-col (for [r (range 1 m)]
+                    [r 0])
+        calculate-dp (fn []
+                       (doseq [r (range 1 m) c (range 1 n)]
+                         (let [obstacle ((obstacle-grid r) c)
+                               paths1 (aget dp (dec r) c)
+                               paths2 (aget dp r (dec c))]
+                           (if (= obstacle 0)
+                             (aset dp r c (+ paths1 paths2))
+                             (aset dp r c 0)))))]
+    (init-dp first-row)
+    (init-dp first-col)
+    (calculate-dp)
+    (aget dp (dec m) (dec n))))
+(map unique-paths-with-obstacles [[[0 0 0] [0 1 0] [0 0 0]] [[0 1] [0 0]]])
