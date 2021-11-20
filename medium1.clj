@@ -923,3 +923,18 @@
     (init-dp)
     (aget dp (dec m) (dec n))))
 (map min-path-sum [[[1 3 1] [1 5 1] [4 2 1]] [[1 2 3] [4 5 6]]])
+
+;;71
+(defn simplify-path [s]
+  (let [components (str/split s #"/+")
+        simplify (fn [result component]
+                   (cond
+                     (= component "") result
+                     (= component ".") result
+                     (= component "..") (vec (drop-last result))
+                     :else (conj result component))
+                   )]
+    (->> (reduce simplify [] components)
+         (str/join "/")
+         (#(str "/" %)))))
+(map simplify-path ["/home/" "/../" "/home//foo/" "/a/./b/../../c/"])
