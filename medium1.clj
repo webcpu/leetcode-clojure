@@ -928,12 +928,10 @@
 (defn simplify-path [s]
   (let [components (str/split s #"/+")
         simplify (fn [result component]
-                   (cond
-                     (= component "") result
-                     (= component ".") result
-                     (= component "..") (vec (drop-last result))
-                     :else (conj result component))
-                   )]
+                   (case component
+                     ("" ".") result
+                     ".." (vec (drop-last result))
+                     (conj result component)))]
     (->> (reduce simplify [] components)
          (str/join "/")
          (#(str "/" %)))))
