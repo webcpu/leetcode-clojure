@@ -959,3 +959,24 @@
       (aset mat r c 0))
     (mapv vec mat)))
 (map set-zeroes [[[1 1 1] [1 0 1] [1 1 1]] [[0 1 2 0] [3 4 5 2] [1 3 1 5]]])
+
+;;74
+(defn search-matrix [matrix target]
+  (let [m (count matrix)
+        n (count (first matrix))]
+    (letfn [(binary-search [nums left right]
+              (let [mid (quot (+ left right) 2)]
+                (cond
+                  (> left right) false
+                  (> (nums mid) target) (binary-search nums left (dec mid))
+                  (< (nums mid) target) (binary-search nums (inc mid) right)
+                  :else true)))
+            (search [r c]
+              (cond
+                (or (< r 0) (>= r m) (< c 0) (>= c n)) false
+                (= ((matrix r) c) target) true
+                (> ((matrix r) c) target) (binary-search (matrix r) 0 c)
+                :else (search (inc r) c)
+                ))]
+      (search 0 (dec n)))))
+(map (partial apply search-matrix) ['([[1,3,5,7],[10,11,16,20],[23,30,34,60]] 3) '([[1,3,5,7],[10,11,16,20],[23,30,34,60]] 13)])
