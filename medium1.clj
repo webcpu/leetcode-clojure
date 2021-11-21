@@ -992,3 +992,19 @@
                   :else true)))]
     (search 0 (dec (* m n))))))
 (map (partial apply search-matrix) ['([[1,3,5,7],[10,11,16,20],[23,30,34,60]] 3) '([[1,3,5,7],[10,11,16,20],[23,30,34,60]] 13)])
+
+;;75
+(defn sort-colors [nums]
+  (let [result (make-array Long/TYPE (count nums))
+        counter (make-array Long/TYPE 3)]
+    (doseq [num nums]
+      (aset counter num (inc (aget counter num))))
+
+    (doseq [index (range (count nums))]
+      (let [color (cond
+                    (< index (aget counter 0)) 0
+                    (and (<= (aget counter 0) index) (< index (+ (aget counter 0) (aget counter 1)))) 1
+                    :else 2)]
+        (aset result index color)))
+    (vec result)))
+(map sort-colors [[2 0 2 1 1 0] [2 0 1] [0] [1]])
