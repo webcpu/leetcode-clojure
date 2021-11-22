@@ -1035,3 +1035,67 @@
          (mapv vec)
          (#(conj % [])))))
 (map subsets [[1 2 3] [0]])
+
+;;79
+(defn exist [board word]
+  (let [m (count board)
+        n (count (first board))
+        indexes (for [r (range m) c (range n)]
+                  [r c])
+        board-map (reduce (fn [result [r c]]
+                            (let [letter ((board r) c)]
+                              (assoc result letter (conj (get result letter) [r c]))))
+                          {} indexes)
+        valid? (fn [path [r c]]
+                 (and (>= r 0) (>= c 0) (< r m) (< c n) (not (contains? path [r c]))))]
+    (letfn [(search [path letters]
+              (let [letter (first letters)
+                    indexes (filter #(valid? path %) (get board-map letter))
+                    neighbours (fn [[r c]]
+                                 (filter #(valid? path %) [[(inc r) c] [(dec r) c] [r (inc c)] [r (dec c)]]))
+                    search' (fn [result [r c]]
+                              (let [result (reduce (fn [found x]
+                                                     (let [r (search (conj path [r c]) (rest letters))]
+                                                       (if r
+                                                         (reduced true)
+                                                         found)
+                                                       ))
+                                                   false
+                                                   (neighbours [r c]))]
+                                (if result
+                                  (reduced true)
+                                  result)))
+                    ]
+                (cond
+                  (empty? letters) true
+                  (empty? indexes) false
+                  :else (reduce search' false indexes))))]
+      (search #{} (map str (vec word)))
+      )))
+
+(defn exist [board word]
+  (let [len (count word)
+        m (count board)
+        n (count (first board))
+        indexes (for [r (range m) c (range n)]
+                  [r c])
+        letters (map str (vec word))
+        ]
+    (letfn [(search [board-status letters r c i]
+              (cond
+                (= i len) true
+                (or (neg? r) (neg? c) (>= r m) (>= c n) (aget board-status r c)) false
+                (not= ((board r) c) (first letters)) false
+                :else (do
+                        (aset board-status r c true)
+                        (or
+                         (search board-status (rest letters) (inc r) c (inc i))
+                         (search board-status (rest letters) (dec r) c (inc i))
+                         (search board-status (rest letters) r (inc c) (inc i))
+                         (search board-status (rest letters) r (dec c) (inc i))))))]
+      (reduce (fn [result [r c]]
+                (let [board-status (make-array Boolean/TYPE m n)]
+                  (if (search board-status letters r c 0)
+                    (reduced true)
+                    result))) false indexes))))
+(map (partial apply exist) ['([["A" "B" "C" "E"] ["S" "F" "C" "S"] ["A" "D" "E" "E"]] "ABCCED") '([["A" "B" "C" "E"] ["S" "F" "C" "S"] ["A" "D" "E" "E"]] "SEE") '([["A" "B" "C" "E"] ["S" "F" "C" "S"] ["A" "D" "E" "E"]] "ABCB")])
