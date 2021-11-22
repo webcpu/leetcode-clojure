@@ -1099,3 +1099,20 @@
                     (reduced true)
                     result))) false indexes))))
 (map (partial apply exist) ['([["A" "B" "C" "E"] ["S" "F" "C" "S"] ["A" "D" "E" "E"]] "ABCCED") '([["A" "B" "C" "E"] ["S" "F" "C" "S"] ["A" "D" "E" "E"]] "SEE") '([["A" "B" "C" "E"] ["S" "F" "C" "S"] ["A" "D" "E" "E"]] "ABCB")])
+
+;;80
+(defn remove-duplicates [nums]
+  (let [xs (into-array nums)]
+    (reduce (fn [index num]
+              (if (or (< index 2) (> num (aget xs (- index 2))))
+                (do
+                  (aset xs index num)
+                  (inc index))
+                index)) 0 nums)))
+(map remove-duplicates [[1 1 1 2 2 3] [0 0 1 1 1 1 2 3 3]])
+
+;;81
+(defn search [nums target]
+  
+)
+(map (partial apply search) ['([2 5 6 0 0 1 2] 0) '([2 5 6 0 0 1 2] 3)])
