@@ -1008,3 +1008,30 @@
         (aset result index color)))
     (vec result)))
 (map sort-colors [[2 0 2 1 1 0] [2 0 1] [0] [1]])
+
+;;77
+(defn combine [n k]
+  (letfn [(combine' [nums k]
+            (if (= k 1)
+              (set (map #(set [%]) nums))
+              (reduce (fn [result num]
+                        (set/union result (set (map #(conj % num) (combine' (disj nums num) (dec k))))))
+                      #{} nums)
+              ))]
+    (mapv vec (combine' (set (range 1 (inc n))) k))))
+(map (partial apply combine) ['(4 2) '(1 1)])
+
+;;78
+(defn subsets [nums]
+  (letfn [(subset [nums k]
+            (let [subset' (fn [num]
+                            (set (map #(conj % num) (subset (disj nums num) (dec k)))))]
+            (cond
+              (zero? k) #{}
+              (= k 1) (set (map #(set (vector %)) nums))
+              :else (set (apply concat (map subset' nums))))))]
+    (->> (map #(subset (set nums) %) (range (inc (count nums))))
+         (apply concat)
+         (mapv vec)
+         (#(conj % [])))))
+(map subsets [[1 2 3] [0]])
