@@ -1154,3 +1154,84 @@
             ))]
     (subsets [] [] nums 0))))
 (map subsets-with-dup [[1 2 2] [0]])
+
+;;91
+(defn num-decoding [s]
+  (let [digits (mapv #(- (int %) (int \0)) (vec s))]
+    (letfn [(valid? [digits]
+              (cond
+                (> (count digits) 2) false
+                (zero? (first digits)) false
+                :else (< 0 (reduce #(+ (* %1 10) %2) (first digits) (rest digits)) 27)))
+            (count-decoding [digits]
+              (let [len (count digits)
+                    digit1 (first digits)
+                    digit2 (second digits)]
+                (cond
+                  (= len 0) 1
+                  (= len 1) (if (valid? digits) 1 0)
+                  (= len 2) (+ (if (valid? (take 2 digits)) 1 0) (if (valid? (take 1 digits)) (count-decoding (rest digits)) 0))
+                  :else (+ (if (valid? (take 1 digits)) (count-decoding (drop 1 digits)) 0)
+                           (if (valid? (take 2 digits)) (count-decoding (drop 2 digits)) 0))
+                  )))]
+      (count-decoding digits))))
+
+(defn num-decoding [s]
+  (let [len (count s)
+        dp (make-array Long/TYPE (inc len))
+        digits (mapv #(- (int %) (int \0)) (vec s))]
+    (aset dp 0 1)
+    (aset dp 1 (if (zero? (first digits)) 0 1))
+    (doseq [index (range 2 (inc len))]
+      (let [digit1 (digits (- index 1))
+            digit2 (digits (- index 2))]
+        (when (< 0 digit1 10)
+          (aset dp index (+ (aget dp index) (aget dp (dec index)))))
+        (when (< 9 (+ (* digit2 10) digit1) 27)
+          (aset dp index (+ (aget dp index) (aget dp (- index 2)))))))
+      (last dp)))
+  (map num-decoding ["12" "226" "0" "06" "00"])
+
+;;93
+(defn restore-ip-addresses [s]
+  (let [min-length (max 1 (rem (- (count s) 9) 4))
+        valid? (fn [s]
+                  (let [len (count s)
+                        digits (map #(- (int %) (int \0)) s)
+                        num (reduce #(+ (* %1 10) %2) 0 digits)]
+                  (and (not (and (> len 1) (zero? (first digits)))) (<= 0 num 255))))]
+    (letfn [(restore [results result start]
+              (let [restore' (fn [r end]
+                               (let [s' (subs s start end)
+                                     num (Integer/parseInt s')]
+                                 (if (valid? s')
+                                   (restore r (conj result (str num)) end)
+                                   r)))]
+                (cond
+                  (and (= (count result) 4) (= start (count s))) (conj results (str/join "." result))
+                  (= (count result) 4) results
+                  :else (reduce restore' results (range (inc start) (min (inc (count s)) (+ start 4)))))))]
+      (vec (set (restore [] [] 0))))))
+(defn restore-ip-addresses [s]
+  (let [len (count s)
+        to-components (fn [[a b c d]]
+                        (let [num1 (subs s 0 a)
+                              num2 (subs s a (+ a b))
+                              num3 (subs s (+ a b) (+ a b c))
+                              num4 (subs s (+ a b c) (+ a b c d))]
+                          [num1 num2 num3 num4]
+                          ))
+        valid? (fn [[num1 num2 num3 num4]]
+                 (->> (filter #(not (empty? %)) [num1 num2 num3 num4])
+                      (map #(Integer/parseInt %) )
+                      (filter #(<= 0 % 255))
+                      (map str)
+                      (str/join "")
+                      (#(= (count %) (count s)))))
+        indexes (filter #(= (apply + %) len) (for [a (range 1 4) b (range 1 4) c (range 1 4) d (range 1 4)]
+                                               [a b c d]))]
+    (->> (map to-components indexes)
+         (filter valid?)
+         (map #(str/join "." %))
+         )))
+(map restore-ip-addresses ["25525511135" "0000" "1111" "010010" "101023"])
