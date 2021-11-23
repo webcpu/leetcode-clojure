@@ -1235,3 +1235,18 @@
          (map #(str/join "." %))
          )))
 (map restore-ip-addresses ["25525511135" "0000" "1111" "010010" "101023"])
+
+;;97
+(defn is-interleave [s1 s2 s3]
+  (let [cs1 (vec s1)
+        cs2 (vec s2)
+        cs3 (vec s3)]
+    (letfn [(interleave? [cs1 cs2 cs3]
+              (cond
+                (not= (+ (count cs1) (count cs2)) (count cs3)) false
+                (every? empty? [cs1 cs2 cs3]) true
+                (and (not= (first cs1) (first cs3)) (not= (first cs2) (first cs3))) false
+                :else (or (and (= (first cs1) (first cs3)) (interleave? (rest cs1) cs2 (rest cs3)))
+                         (and (= (first cs2) (first cs3)) (interleave? cs1 (rest cs2) (rest cs3))))))]
+      (interleave? cs1 cs2 cs3))))
+(map (partial apply is-interleave) ['("aabcc" "dbbca" "aadbbcbcac") '("aabcc" "dbbca" "aadbbbaccc") '("" "" "")])
