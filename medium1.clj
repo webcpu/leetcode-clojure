@@ -1113,6 +1113,30 @@
 
 ;;81
 (defn search [nums target]
-  
-)
+  (letfn [(binary-search [left right]
+            (let [mid (quot (+ left right) 2)]
+              (cond
+                (> left right) false
+                (= (nums mid) target) true
+                (< (nums left) (nums mid)) (if (<= (nums left) target)
+                                             (binary-search left (dec right))
+                                             (binary-search (inc mid) right))
+                (> (nums mid) (nums left)) (if (and (< (nums mid) target)
+                                                     (< target (nums right)))
+                                              (binary-search (inc mid) right)
+                                              (binary-search left (dec mid)))
+                :else (binary-search left (dec right))
+                )))]
+    (binary-search 0 (dec (count nums)))))
 (map (partial apply search) ['([2 5 6 0 0 1 2] 0) '([2 5 6 0 0 1 2] 3)])
+
+;;89
+(defn gray-code [n]
+  (letfn [(generate-gray-code [n]
+            (let [generate (fn [result _]
+                             (let [len (count result)]
+                               (concat result (reverse (map #(+ % len) result)))
+                               ))]
+            (reduce generate [0 1] (range 1 n))))]
+    (generate-gray-code n)))
+(map gray-code [2 1 3])
