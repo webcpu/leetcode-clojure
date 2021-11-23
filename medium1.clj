@@ -1140,3 +1140,17 @@
             (reduce generate [0 1] (range 1 n))))]
     (generate-gray-code n)))
 (map gray-code [2 1 3])
+
+;;90
+(defn subsets-with-dup [nums]
+  (let [nums (vec (sort nums))]
+  (letfn [(subsets [results result nums start]
+            (let [results' (conj results result)]
+              (reduce (fn [r index]
+                        (if (or (= start index) (not= (nums (dec index)) (nums index)))
+                          (subsets r (conj result (nums index)) nums (inc index))
+                          r))
+                         results' (range start (count nums)))
+            ))]
+    (subsets [] [] nums 0))))
+(map subsets-with-dup [[1 2 2] [0]])
