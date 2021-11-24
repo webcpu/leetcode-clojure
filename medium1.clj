@@ -1249,4 +1249,25 @@
                 :else (or (and (= (first cs1) (first cs3)) (interleave? (rest cs1) cs2 (rest cs3)))
                          (and (= (first cs2) (first cs3)) (interleave? cs1 (rest cs2) (rest cs3))))))]
       (interleave? cs1 cs2 cs3))))
+(defn is-interleave [s1 s2 s3]
+  (let [len1 (count s1)
+        len2 (count s2)
+        dp (make-array Boolean/TYPE (inc len1) (inc len2))
+        interleave? (fn [dp]
+                      (doseq [i (range (inc len1)) j (range (inc len2))]
+                        (cond
+                          (= i j 0) (aset dp i j true)
+                          (zero? i) (aset dp i j (and (aget dp i (dec j))
+                                                      (= (subs s2 (dec j) j) (subs s3 (dec j) j))))
+                          (zero? j) (aset dp i j (and (aget dp (dec i) j)
+                                                      (= (subs s1 (dec i) i) (subs s3 (dec i) i))))
+                          :else (let [value (or (and (aget dp i (dec j))
+                                                     (= (subs s2 (dec j) j) (subs s3 (+ i j -1) (+ i j))))
+                                                (and (aget dp (dec i) j)
+                                                     (= (subs s1 (dec i) i) (subs s3 (+ i j -1) (+ i j)))))]
+                                  (aset dp i j value))))
+                      (aget dp len1 len2))]
+    (if (= (+ len1 len2) (count s3))
+      (interleave? dp)
+      false)))
 (map (partial apply is-interleave) ['("aabcc" "dbbca" "aadbbcbcac") '("aabcc" "dbbca" "aadbbbaccc") '("" "" "")])
