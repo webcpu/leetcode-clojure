@@ -1335,12 +1335,12 @@
                        [r c])
                      (filter (fn [[r c]]
                                (and (or (zero? r) (zero? c) (= r (dec m)) (= c (dec n)))
-                                    (= ((board r) c) "O")))))
-        free-cell? (fn [cell-set [r c]]
-                     (and (>= r 0) (< r m) (>= c 0) (< c n)
-                          (= ((board r) c) "O")
-                          (not (contains? cell-set [r c]))))]
-    (letfn [(get-free-cells [free-cells [r c]]
+                                    (= ((board r) c) "O")))))]
+    (letfn [(free-cell? [cell-set [r c]]
+              (and (>= r 0) (< r m) (>= c 0) (< c n)
+                   (= ((board r) c) "O")
+                   (not (contains? cell-set [r c]))))
+            (get-free-cells [free-cells [r c]]
               (if (not (free-cell? free-cells [r c]))
                 free-cells
                 (reduce get-free-cells (conj free-cells [r c]) [[(inc r) c] [(dec r) c] [r (inc c)] [r (dec c)]])))]
@@ -1351,3 +1351,20 @@
         (mapv vec cells)
         ))))
 (map solve [[["X" "X" "X" "X"] ["X" "O" "O" "X"] ["X" "X" "O" "X"] ["X" "O" "X" "X"]] [["X"]]])
+
+;;131
+(defn partition1 [s]
+  (let [len (count s)]
+    (letfn [(parlindrome? [s]
+              (= s (str/reverse s)))
+            (part [results result start]
+              (let [add-parlindrome (fn [results end]
+                                      (let [s' (subs s start end)]
+                                        (if (parlindrome? s')
+                                          (part results (conj result s') end)
+                                          results)))]
+                (if (= start len)
+                  (conj results result)
+                  (reduce add-parlindrome results (range (inc start) (inc len))))))]
+      (part [] [] 0))))
+(map partition1 ["aab" "a" "aabaa"])
