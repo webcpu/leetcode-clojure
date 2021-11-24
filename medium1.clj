@@ -1271,3 +1271,15 @@
       (interleave? dp)
       false)))
 (map (partial apply is-interleave) ['("aabcc" "dbbca" "aadbbcbcac") '("aabcc" "dbbca" "aadbbbaccc") '("" "" "")])
+
+;;120
+(defn minimum-total [triangle]
+  (let [m (count triangle)
+        n (count (first triangle))]
+    (letfn [(dfs [sum r c]
+              (if (= (inc r) m)
+                sum
+                (min (dfs (+ sum ((triangle (inc r)) c)) (inc r) c)
+                     (dfs (+ sum ((triangle (inc r)) c)) (inc c) (inc c)))))]
+      (dfs (first (first triangle)) 0 0))))
+(map minimum-total [[[2] [3 4] [6 5 7] [4 1 8 3]] [[-10]]])
