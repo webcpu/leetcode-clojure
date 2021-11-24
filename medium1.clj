@@ -1292,3 +1292,37 @@
                     (min (aget dp c) (aget dp (inc c))))))
     (first dp)))
 (map minimum-total [[[2] [3 4] [6 5 7] [4 1 8 3]] [[-10]]])
+
+;;122
+(defn max-profit [prices]
+  (let [make-profit (fn [profit index]
+                      (let [price1 (prices (dec index))
+                            price2 (prices index)]
+                        (if (< price1 price2)
+                          (+ (- price2 price1) profit)
+                          profit)
+                        ))]
+    (reduce make-profit 0 (range 1 (count prices)))))
+(map max-profit [[7 1 5 3 6 4] [1 2 3 4 5] [7 6 4 3 1]])
+
+;;128
+(defn longest-consective [nums]
+  (let [num-set (set nums)]
+    (letfn [(count-length [num]
+              (loop [num num len 0]
+                (if (not (contains? num-set num))
+                  len
+                  (recur (inc num) (inc len)))))
+            (longest [max-length num]
+              (if (contains? num-set (dec num))
+                max-length
+                (max (count-length num) max-length)))]
+      (reduce longest 1 num-set))))
+(map longest-consective [[100,4,200,1,3,2] [0,3,7,2,5,8,4,6,0,1]])
+
+;; (rem (reduce #(let [r (* %1 %2)]
+;;            (cond
+;;              (zero? (rem r 100)) (quot r 100)
+;;              (zero? (rem r 10)) (quot r 10)
+;;              :else (rem r 100)
+;;            )) 1 (range 1 91)) 100)
