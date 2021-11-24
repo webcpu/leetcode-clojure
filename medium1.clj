@@ -1282,4 +1282,13 @@
                 (min (dfs (+ sum ((triangle (inc r)) c)) (inc r) c)
                      (dfs (+ sum ((triangle (inc r)) c)) (inc c) (inc c)))))]
       (dfs (first (first triangle)) 0 0))))
+(defn minimum-total [triangle]
+  (let [m (count triangle)
+        dp (into-array (last triangle))
+        indexes (for [r (range (- m 2) -1 -1) c (range (inc r))]
+                  [r c])]
+    (doseq [[r c] indexes]
+      (aset dp c (+ (aget dp c)
+                    (min (aget dp c) (aget dp (inc c))))))
+    (first dp)))
 (map minimum-total [[[2] [3 4] [6 5 7] [4 1 8 3]] [[-10]]])
