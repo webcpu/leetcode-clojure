@@ -1326,3 +1326,28 @@
 ;;              (zero? (rem r 10)) (quot r 10)
 ;;              :else (rem r 100)
 ;;            )) 1 (range 1 91)) 100)
+
+;;130
+(defn solve [board]
+  (let [m (count board)
+        n (count (first board))
+        indexes (->> (for [r (range m) c (range n)]
+                       [r c])
+                     (filter (fn [[r c]]
+                               (and (or (zero? r) (zero? c) (= r (dec m)) (= c (dec n)))
+                                    (= ((board r) c) "O")))))
+        free-cell? (fn [cell-set [r c]]
+                     (and (>= r 0) (< r m) (>= c 0) (< c n)
+                          (= ((board r) c) "O")
+                          (not (contains? cell-set [r c]))))]
+    (letfn [(get-free-cells [free-cells [r c]]
+              (if (not (free-cell? free-cells [r c]))
+                free-cells
+                (reduce get-free-cells (conj free-cells [r c]) [[(inc r) c] [(dec r) c] [r (inc c)] [r (dec c)]])))]
+      (let [free-cells (reduce get-free-cells #{} indexes)
+            cells (make-array String m n)]
+        (doseq [r (range m) c (range n)]
+          (aset cells r c (if (contains? free-cells [r c]) "O" "X")))
+        (mapv vec cells)
+        ))))
+(map solve [[["X" "X" "X" "X"] ["X" "O" "O" "X"] ["X" "X" "O" "X"] ["X" "O" "X" "X"]] [["X"]]])
