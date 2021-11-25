@@ -1368,3 +1368,19 @@
                   (reduce add-parlindrome results (range (inc start) (inc len))))))]
       (part [] [] 0))))
 (map partition1 ["aab" "a" "aabaa"])
+
+;;134
+(defn can-complete-circuit [gas cost]
+  (let [len (count gas)
+        total (- (apply + gas) (apply + cost))
+        search-gas-station (fn [[tank start] index]
+                             (let [delta (- (gas index) (cost index))
+                                   tank (+ tank delta)]
+                               (if (neg? tank)
+                                 [0 (inc start)]
+                                 [tank start])))
+        ]
+    (if (neg? total)
+      -1
+     (last (reduce search-gas-station [0 0] (range len))))))
+(map (partial apply can-complete-circuit) ['([1 2 3 4 5] [3 4 5 1 2]) '([2 3 4] [3 4 3])])
