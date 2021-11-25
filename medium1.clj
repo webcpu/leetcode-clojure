@@ -1373,14 +1373,57 @@
 (defn can-complete-circuit [gas cost]
   (let [len (count gas)
         total (- (apply + gas) (apply + cost))
-        search-gas-station (fn [[tank start] index]
-                             (let [delta (- (gas index) (cost index))
-                                   tank (+ tank delta)]
-                               (if (neg? tank)
-                                 [0 (inc start)]
-                                 [tank start])))
-        ]
+        search (fn [[tank start] index]
+                 (let [delta (- (gas index) (cost index))
+                       tank (+ tank delta)]
+                   (if (neg? tank)
+                     [0 (inc start)]
+                     [tank start])))
+        search-gas-station (fn []
+                             (last (reduce search [0 0] (range len))))]
     (if (neg? total)
       -1
-     (last (reduce search-gas-station [0 0] (range len))))))
+      (search-gas-station))))
 (map (partial apply can-complete-circuit) ['([1 2 3 4 5] [3 4 5 1 2]) '([2 3 4] [3 4 3])])
+
+;;137
+(defn single-number [nums]
+  (let [search (fn [num-map num]
+                 (let [freq (or (get num-map num) 3)]
+                   (if (= freq 1)
+                     (dissoc num-map num)
+                     (assoc num-map num (dec freq)))))]
+    (first (keys (reduce search {} nums)))))
+(map single-number [[2,2,3,2] [0,1,0,1,0,1,99]])
+
+;;139
+(defn word-break [s word-dict]
+  (let [len-word-map (reduce (fn [dict word]
+                               (let [len (count word)
+                                     words (or (get dict len) #{})]
+                                 (assoc dict len (conj words word))
+                                 )) {} word-dict)
+        lens (sort (keys len-word-map))]
+    (letfn [(break [s]
+              (cond
+                (empty? s) true
+                (< (count s) (first lens)) false
+                :else (reduce (fn [result l]
+                                (if (and (contains? (get len-word-map l) (subs s 0 l)) (break (subs s l)))
+                                  (reduced true)
+                                  result)) false lens)))]
+      (break s))))
+(defn word-break [s word-dict]
+  (let [word-set (set word-dict)]
+    (letfn [(break [s]
+              (reduce (fn [result index]
+                        (let [left (subs s 0 index)
+                              right(subs s index (count s))]
+                          (if (and (contains? word-set left)
+                                   (break right))
+                            (reduced true)
+                            result)))
+                      (empty? s)
+                      (range 1 (inc (count s)))))]
+      (break s))))
+(map (partial apply word-break) ['("leetcode" ["leet" "code"]) '("applepenapple" ["apple" "pen"]) '("catsandog"  ["cats" "dog" "sand" "and" "cat"])])
