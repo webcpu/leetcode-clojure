@@ -1427,3 +1427,24 @@
                       (range 1 (inc (count s)))))]
       (break s))))
 (map (partial apply word-break) ['("leetcode" ["leet" "code"]) '("applepenapple" ["apple" "pen"]) '("catsandog"  ["cats" "dog" "sand" "and" "cat"])])
+
+;;150
+(defn eval-RPN [tokens]
+  (let [calculate (fn [exprs token]
+                    (case token
+                      "+" (+ (second exprs) (first exprs))
+                      "-" (- (second exprs) (first exprs))
+                      "*" (* (second exprs) (first exprs))
+                      "/" (int (/ (second exprs) (first exprs)))
+                      (Integer/parseInt token)))
+        eval-expr (fn [exprs token]
+                    (let [operator? (fn [token]
+                                      (contains? #{"+" "-" "*" "/"} token))
+                          value (calculate exprs token) ]
+                      (println exprs)
+                      (println (str "value = " value))
+                      (if (operator? token)
+                        (cons value (drop 2 exprs))
+                        (cons value exprs))))]
+   (first (reduce eval-expr (list) tokens))))
+(map eval-RPN [["2" "1" "+" "3" "*"] ["4" "13" "5" "/" "+"] ["10" "6" "9" "3" "+" "-11" "*" "/" "*" "17" "+" "5" "+"]])
