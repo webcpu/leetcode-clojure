@@ -1449,8 +1449,17 @@
 
 ;;151
 (defn reverse-words [s]
-  (->> (str/split s #"\W+")
-       (filter (comp not empty?))
-       reverse)
-  )
+  (->> (str/split (str/trim s) #"\W+")
+       reverse))
+
+(defn reverse-words [s]
+  (let [cs (vec (str/trim s))
+        len (count cs)]
+    (reduce (fn [[q word] index]
+              (cond
+                (= index len) (if (empty? word) [q []] [(cons (str/join "" word) q)])
+                (not= (cs index) \ ) [q (conj word (cs index))]
+                (not (empty? word)) [(cons (str/join "" word) q) []]
+                :else [q word]))
+            [[] []] (range (inc (count cs))))))
 (map reverse-words ["the sky is blue" "  hello world  " "a good   example" "  Bob    Loves  Alice   " "Alice does not even like bob"])
