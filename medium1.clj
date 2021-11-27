@@ -1441,10 +1441,16 @@
                     (let [operator? (fn [token]
                                       (contains? #{"+" "-" "*" "/"} token))
                           value (calculate exprs token) ]
-                      (println exprs)
-                      (println (str "value = " value))
                       (if (operator? token)
                         (cons value (drop 2 exprs))
                         (cons value exprs))))]
    (first (reduce eval-expr (list) tokens))))
 (map eval-RPN [["2" "1" "+" "3" "*"] ["4" "13" "5" "/" "+"] ["10" "6" "9" "3" "+" "-11" "*" "/" "*" "17" "+" "5" "+"]])
+
+;;151
+(defn reverse-words [s]
+  (->> (str/split s #"\W+")
+       (filter (comp not empty?))
+       reverse)
+  )
+(map reverse-words ["the sky is blue" "  hello world  " "a good   example" "  Bob    Loves  Alice   " "Alice does not even like bob"])
