@@ -1463,3 +1463,33 @@
                 :else [q word]))
             [[] []] (range (inc (count cs))))))
 (map reverse-words ["the sky is blue" "  hello world  " "a good   example" "  Bob    Loves  Alice   " "Alice does not even like bob"])
+
+;;152
+(defn max-product [nums]
+  (let [result (first nums)
+        find-max-product (fn [[result max-value min-value] num]
+                           (let [[max-value min-value] (if (neg? num)
+                                                         [min-value max-value]
+                                                         [max-value min-value])
+                                 max-value' (max num (* max-value num))
+                                 min-value' (min num (* min-value num))
+                                 result' (max max-value' result)]
+                             [result' max-value' min-value']))]
+    (first (reduce find-max-product [result result result] (rest nums)))))
+(defn max-product [nums]
+  (let [len (count nums)
+        nums' (vec (reverse nums))
+        get-product (fn [nums xs index]
+                      (let [num (if (zero? (xs (dec index)))
+                                  1
+                                  (xs (dec index)))]
+                        (* (nums index) num)))
+        add-product (fn [nums xs index]
+                      (conj xs (get-product nums xs index)))]
+    (->> (reduce (fn [[xs ys] index]
+              [(add-product nums xs index)
+               (add-product nums' ys index)]
+                   ) [[(first nums)] [(first nums')]] (range 1 len))
+         (flatten)
+         (apply max))))
+(map max-product [[2 3 -2 4] [-2 0 -1]])
