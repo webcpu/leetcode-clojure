@@ -1493,3 +1493,14 @@
          (flatten)
          (apply max))))
 (map max-product [[2 3 -2 4] [-2 0 -1]])
+
+;;153
+(defn find-min [nums]
+  (letfn [(get-min [start end]
+            (let [mid (quot (+ start end) 2)]
+              (cond
+                (>= start end) start
+                (> (nums mid) (nums end)) (get-min (inc mid) end)
+                :else (get-min start mid))))]
+    (nums (get-min 0 (dec (count nums))))))
+(map find-min [[3,4,5,1,2] [4,5,6,7,0,1,2] [11,13,15,17]])
