@@ -1504,3 +1504,19 @@
                 :else (get-min start mid))))]
     (nums (get-min 0 (dec (count nums))))))
 (map find-min [[3,4,5,1,2] [4,5,6,7,0,1,2] [11,13,15,17]])
+
+;;159
+(defn length-of-longest-substring-two-distinct [s]
+  (let [letters (vec s)
+        get-longest-substring (fn [[max-length dict left] index]
+                                (let [letter (letters index)]
+                                  (if (and (= (count dict) 2)
+                                           (nil? (get dict letter)))
+                                    (let [dict' (dissoc dict (letters left))]
+                                      [max-length (assoc dict' letter index) (first (vals dict'))])
+                                    (let [dict' (if (nil? (get dict letter))
+                                                  (assoc dict letter index)
+                                                  dict)]
+                                      [(max max-length (- index (dec left))) dict' left]))))]
+    (first (reduce get-longest-substring [0 {} 0] (range (count s))))))
+(map length-of-longest-substring-two-distinct ["eceba" "ccaabbb"])
