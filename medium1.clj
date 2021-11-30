@@ -1560,3 +1560,14 @@
                   :else (reduced (= (subs s (inc index)) (subs t (inc index)))))))
             (= (abs (- len1 len2)) 1) (range len))))
 (map (partial apply is-one-edit-distance) ['("ab" "acb") '("" "") '("a" "") '("" "A")])
+
+;;162
+(defn find-peak-element [nums]
+  (letfn [(find-peak [left right]
+            (let [mid (quot (+ left right) 2)]
+              (cond
+                (= left right) left
+                (< (nums mid) (nums (inc mid))) (find-peak (inc mid) right)
+                :else (find-peak left mid))))]
+    (find-peak 0 (dec (count nums)))))
+(map find-peak-element [[1 2 3 1] [1 2 1 3 5 6 4]])
