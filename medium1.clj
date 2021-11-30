@@ -1520,3 +1520,43 @@
                                       [(max max-length (- index (dec left))) dict' left]))))]
     (first (reduce get-longest-substring [0 {} 0] (range (count s))))))
 (map length-of-longest-substring-two-distinct ["eceba" "ccaabbb"])
+
+;;161
+(defn is-one-edit-distance [s t]
+  (let [substring? (fn [s t]
+                     (and (not= s t) (or (not= (.indexOf s t) -1) (not= (.indexOf t s) -1))))
+        get-pivot-index (fn [s t]
+                             (let [len (min (count s) (count t))]
+                               (reduce (fn [pivot-index index]
+                                         (if (= (subs s index (inc index))
+                                                (subs t index (inc index)))
+                                           pivot-index
+                                           (reduced index)
+                                           )) nil (range len))))
+        abs (fn [n] (if (neg? n)
+                      (- n)
+                      n))
+        one-edit-distance? (fn [s t]
+                             (let [pivot-index (get-pivot-index s t)]
+                               (if (nil? pivot-index)
+                                 (= (abs (- (count s)
+                                               (count t))) 1)
+                                 (or (= (subs s pivot-index) (subs t (inc pivot-index)))
+                                     (= (subs t pivot-index) (subs s (inc pivot-index)))
+                                 ))))]
+    (or (substring? s t) (one-edit-distance? s t))))
+(defn is-one-edit-distance [s t]
+  (let [len1 (count s)
+        len2 (count t)
+        len (min len1 len2)
+        abs (fn [n] (if (neg? n) (- n) n))]
+    (reduce (fn [result index]
+              (let [c1 (subs s index (inc index))
+                    c2 (subs t index (inc index))]
+                (cond
+                  (= c1 c2) result
+                  (< len1 len2) (reduced (= (subs s index) (subs t (inc index))))
+                  (> len1 len2) (reduced (= (subs s index) (subs t (inc index))))
+                  :else (reduced (= (subs s (inc index)) (subs t (inc index)))))))
+            (= (abs (- len1 len2)) 1) (range len))))
+(map (partial apply is-one-edit-distance) ['("ab" "acb") '("" "") '("a" "") '("" "A")])
