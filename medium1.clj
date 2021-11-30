@@ -1571,3 +1571,51 @@
                 :else (find-peak left mid))))]
     (find-peak 0 (dec (count nums)))))
 (map find-peak-element [[1 2 3 1] [1 2 1 3 5 6 4]])
+
+;;165
+(defn compare-version [version1 version2]
+  (let [unify-version (fn [version]
+                        (->> (str/split version #"\.")
+                             (mapv #(Integer/parseInt %))
+                             (reverse)
+                             (reduce (fn [[result allow-zero] num]
+                                       (cond
+                                         allow-zero [(cons num result) allow-zero]
+                                         (not (zero? num)) [(cons num result) true]
+                                         :else [result allow-zero]
+                                        )) [[] false])
+                             (first)
+                             (vec)))
+        v1 (unify-version version1)
+        v2 (unify-version version2)
+        len1 (count v1)
+        len2 (count v2)
+        initial (cond
+                  (> len1 len2) 1
+                  (< len1 len2) -1
+                  :else 0)]
+    (reduce (fn [result index]
+              (cond
+                (< (v1 index) (v2 index)) (reduced -1)
+                (> (v1 index) (v2 index)) (reduced 1)
+                :else result)) initial (range (min len1 len2)))))
+(defn compare-version [version1 version2]
+  (let [normalize-version (fn [v]
+                            (mapv #(Integer/parseInt %) (str/split v #"\.")))
+        v1 (normalize-version version1)
+        v2 (normalize-version version2)
+        len1 (count v1)
+        len2 (count v2)
+        len (max len1 len2)
+        cmp-version (fn [result index]
+                      (let [value1 (if (< index len1)
+                                     (v1 index)
+                                     0)
+                            value2 (if (< index len2)
+                                     (v2 index) 0)]
+                        (cond
+                          (< value1 value2) (reduced -1)
+                          (> value1 value2) (reduced 1)
+                          :else result)))]
+    (reduce cmp-version 0 (range len))))
+(map (partial apply compare-version) ['("1.01" "1.001") '("1.0" "1.0.0") '("0.1" "1.1") '("1.0.1" "1") '("7.5.2.4" "7.5.3")])
