@@ -1619,3 +1619,41 @@
                           :else result)))]
     (reduce cmp-version 0 (range len))))
 (map (partial apply compare-version) ['("1.01" "1.001") '("1.0" "1.0.0") '("0.1" "1.1") '("1.0.1" "1") '("7.5.2.4" "7.5.3")])
+
+;;166
+(defn fraction-to-decimal [numerator denominator]
+  (letfn [(next-numerator [a b]
+            (loop [x 10]
+              (if (> (* a x) b)
+                (* a x)
+                (recur (* x 10)))))
+          (divide [a b]
+            (let [r (quot a b)]
+              (if (zero? r)
+                (str))))]
+    (next-numerator numerator denominator)
+    ))
+(map (partial apply fraction-to-decimal) ['(1 2) '(2 1) '(2 3) '(4 333) '(1 5)])
+
+;;172
+(defn trailing-zeroes [n]
+  (letfn [(count-factors [n factor]
+            (if (zero? (rem n factor))
+              (inc (count-factors (quot n factor) factor))
+              0))
+          (sum-factors [factor nums]
+            (apply + (map #(count-factors % factor) nums)))
+          (get-trailing-zeroes [n]
+            (min (sum-factors 2 (range 1 (inc n)))
+                     (sum-factors 5 (range 1 (inc n)))))]
+    (if (zero? n)
+      0
+      (get-trailing-zeroes n))))
+
+(defn trailing-zeroes [n]
+  (letfn [(get-trailing-zeroes [n]
+            (if (zero? n)
+              0
+              (+ (quot n 5) (get-trailing-zeroes (quot n 5)))))]
+    (get-trailing-zeroes n)))
+(map trailing-zeroes [3 5 0 10])
