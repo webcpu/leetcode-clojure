@@ -1657,3 +1657,16 @@
               (+ (quot n 5) (get-trailing-zeroes (quot n 5)))))]
     (get-trailing-zeroes n)))
 (map trailing-zeroes [3 5 0 10])
+
+;;179
+(defn largest-number [nums]
+  (let [get-largest-number (fn [nums]
+                             (->> (sort (fn [l r]
+              (compare (str r l) (str l r))) nums)
+      (map str)
+      (str/join "")))]
+    (let [result (get-largest-number nums)]
+      (if (= (subs result 0 1) "0")
+        "0"
+        result))))
+(map largest-number [[10 2] [3 30 34 5 9] [1] [10]])
